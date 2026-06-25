@@ -1,0 +1,94 @@
+C51 COMPILER V9.60.7.0   LCD                                                               05/27/2026 14:52:52 PAGE 1   
+
+
+C51 COMPILER V9.60.7.0, COMPILATION OF MODULE LCD
+OBJECT MODULE PLACED IN .\Objects\lcd.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE lcd.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\lcd.l
+                    -st) TABS(2) OBJECT(.\Objects\lcd.obj)
+
+line level    source
+
+   1          #include "lcd.h"
+   2          void busy()
+   3          {
+   4   1        D7=1;
+   5   1        rs=0;
+   6   1        rw=1;
+   7   1        while(D7!=0)
+   8   1        {
+   9   2          en=0;
+  10   2          en=1;
+  11   2        }
+  12   1      }
+  13          //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
+  14          void ghilenhLCD(unsigned char x)
+  15          {
+  16   1        busy();
+  17   1        congLCD=x;  
+  18   1        rs=0; 
+  19   1        rw=0; 
+  20   1        en=1;  
+  21   1        en=0;   
+  22   1      }
+  23          //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
+  24          void khoitaoLCD(void)
+  25          {
+  26   1        ghilenhLCD(0X38);       
+  27   1        ghilenhLCD(0X0C);       
+  28   1        ghilenhLCD(0X01);       
+  29   1        ghilenhLCD(0X06);       
+  30   1      }
+  31          //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
+  32          void ghi_kytu(unsigned char value)
+  33          {
+  34   1        busy();
+  35   1        congLCD=value;
+  36   1        rs=1;
+  37   1        rw=0;
+  38   1        en=1;
+  39   1        en=0;
+  40   1      }
+  41          //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
+  42          void ghi_chuoi(unsigned char *string)
+  43          {
+  44   1        unsigned char i;
+  45   1        for(i=0;string[i]!='\0';i++)
+  46   1          ghi_kytu(string[i]);
+  47   1      }
+  48          //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
+  49          
+  50          void ghiso(unsigned char a)
+  51          {
+  52   1        unsigned char i;
+  53   1        if(a > 99) a = 99;
+  54   1        
+C51 COMPILER V9.60.7.0   LCD                                                               05/27/2026 14:52:52 PAGE 2   
+
+  55   1        i=a/10;
+  56   1        ghi_chuoi(rtc[i]);
+  57   1        i=a%10;
+  58   1        ghi_chuoi(rtc[i]);
+  59   1      }
+  60          //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
+  61          void hienthi_dulieu_rtc(unsigned char x)
+  62          {
+  63   1        unsigned char temp;
+  64   1        temp = x/16;
+  65   1        ghi_chuoi(rtc[temp]);
+  66   1        temp = x%16;
+  67   1        ghi_chuoi(rtc[temp]);
+  68   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    187    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----       3
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

@@ -1,0 +1,122 @@
+C51 COMPILER V9.60.7.0   DS1307                                                            05/27/2026 14:52:52 PAGE 1   
+
+
+C51 COMPILER V9.60.7.0, COMPILATION OF MODULE DS1307
+OBJECT MODULE PLACED IN .\Objects\ds1307.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE ds1307.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\ds
+                    -1307.lst) TABS(2) OBJECT(.\Objects\ds1307.obj)
+
+line level    source
+
+   1          #include "ds1307.h"
+   2          unsigned char *rtc[]={"0","1","2","3","4","5","6","7","8","9"};
+   3          unsigned char *day[]={"CNhat","Thu 2","Thu 3","Thu 4","Thu 5","Thu 6","Thu 7"};
+   4          unsigned char giatrikhoitao_rtc[9];
+   5          void start_rtc(void) 
+   6          {                
+   7   1        scl=1;
+   8   1        sda=1;  
+   9   1        _nop_();
+  10   1        _nop_();
+  11   1        sda=0;
+  12   1        scl=0;
+  13   1      }
+  14          //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
+  15          void stop_rtc(void)             
+  16          {               
+  17   1        sda=0;
+  18   1        scl=1;
+  19   1        _nop_();
+  20   1        _nop_();
+  21   1        sda=1;
+  22   1      }
+  23          //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
+  24          void gui_rtc(unsigned char x)
+  25          {   
+  26   1        unsigned char i;    
+  27   1        for(i=0;i<8;i++)
+  28   1        {
+  29   2          sda=(x&0x80)? 1:0;  
+  30   2          scl=1;                      
+  31   2           _nop_();
+  32   2           _nop_();           
+  33   2          scl=0;
+  34   2          x<<=1;              
+  35   2        }
+  36   1        sda = 1;
+  37   1        scl=1;             
+  38   1        _nop_();
+  39   1        _nop_();
+  40   1        scl=0;
+  41   1      }
+  42          //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
+  43          unsigned char nhan_rtc(void)
+  44          {   
+  45   1        unsigned char Data=0,i; 
+  46   1        sda = 1;  
+  47   1        for(i=0;i<8;i++) 
+  48   1        {
+  49   2          scl=1; 
+  50   2          Data<<=1;
+  51   2          if(sda) Data|=1; 
+  52   2          scl=0;
+  53   2          }   
+  54   1        sda=1;  
+C51 COMPILER V9.60.7.0   DS1307                                                            05/27/2026 14:52:52 PAGE 2   
+
+  55   1        scl=1; 
+  56   1        _nop_();
+  57   1        scl=0;
+  58   1        _nop_();
+  59   1        return Data;
+  60   1      }
+  61          //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
+  62          char docdulieu(unsigned char diachi)
+  63          {       
+  64   1        unsigned char Data;
+  65   1        start_rtc();
+  66   1        gui_rtc(0xd0);
+  67   1        gui_rtc(diachi);
+  68   1        start_rtc();
+  69   1        gui_rtc(0xd1); 
+  70   1        Data=nhan_rtc();    
+  71   1        stop_rtc();
+  72   1        return Data;
+  73   1      }
+  74          
+  75          void ghi_dulieu_rtc(unsigned char diachi, unsigned char dulieu)
+  76          {
+  77   1        start_rtc();
+  78   1        gui_rtc(0xd0);
+  79   1        gui_rtc(diachi);
+  80   1        gui_rtc(dulieu);
+  81   1        stop_rtc();
+  82   1      }
+  83          
+  84          //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
+  85          void ghivaoDS1307(void)
+  86          {
+  87   1        unsigned char t;
+  88   1        for(t=0;t<9;t++)
+  89   1        {
+  90   2          start_rtc();
+  91   2          gui_rtc(0xd0);
+  92   2          gui_rtc(t);
+  93   2          gui_rtc(giatrikhoitao_rtc[t]);
+  94   2          stop_rtc();
+  95   2        }
+  96   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    156    ----
+   CONSTANT SIZE    =     62    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     60    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

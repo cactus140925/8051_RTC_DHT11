@@ -1,0 +1,24 @@
+{
+    "configurations": [
+        {
+            "name": "Win32",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "C:\\Keil_v5\\C51\\INC\\Atmel",
+                "C:\\Keil_v5\\C51\\INC"
+            ],
+            "defines": [
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE",
+                "__C51__",
+                "interrupt=",
+                "using=",
+                "sbit=unsigned char",
+                "sfr=unsigned char",
+                "bit=unsigned char"
+            ]
+        }
+    ],
+    "version": 4
+}

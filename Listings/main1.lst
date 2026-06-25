@@ -1,0 +1,1026 @@
+C51 COMPILER V9.60.7.0   MAIN1                                                             06/12/2026 20:07:20 PAGE 1   
+
+
+C51 COMPILER V9.60.7.0, COMPILATION OF MODULE MAIN1
+OBJECT MODULE PLACED IN .\Objects\main1.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE main1.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\mai
+                    -n1.lst) TABS(2) OBJECT(.\Objects\main1.obj)
+
+line level    source
+
+   1          #include "main.h"
+   2          bit user,user2;
+   3          unsigned char r1_gio, r1_phut, r1_ngay, r1_thang, r1_state;
+   4          unsigned char r2_gio, r2_phut, r2_ngay, r2_thang, r2_state;
+   5          unsigned char TOn1=20,TOff1=40,TMax1=45;
+   6          unsigned char TOn2=35,TOff2=25,TMax2=45;
+   7           /**********************************************************************************/
+   8          
+   9          /**********************************************************************************/
+  10          void delay(long time)
+  11          {
+  12   1          while(time--)
+  13   1          {
+  14   2              TMOD &= 0xF0;    
+  15   2              TMOD |= 0x01;    
+  16   2              TH0 = 0xFC;     
+  17   2              TL0 = 0x67; 
+  18   2              TF0 = 0;         
+  19   2              TR0 = 1;        
+  20   2              
+  21   2              while(TF0 == 0); 
+  22   2              
+  23   2              TR0 = 0;        
+  24   2              TF0 = 0;        
+  25   2          }
+  26   1      }
+  27          void hienthi_rtc(void)                                                          
+  28          {
+  29   1        ghilenhLCD(0xc6);   
+  30   1        hienthi_dulieu_rtc(docdulieu(0)); 
+  31   1        ghilenhLCD(0xc3);  
+  32   1        hienthi_dulieu_rtc(docdulieu(1)); 
+  33   1        ghi_kytu(':');
+  34   1        ghilenhLCD(0xc0);  
+  35   1        hienthi_dulieu_rtc(docdulieu(2)); 
+  36   1        ghi_kytu(':');
+  37   1        ghilenhLCD(0x80); 
+  38   1        ghi_chuoi(day[docdulieu(3)-1]);  
+  39   1        ghi_kytu(',');
+  40   1        ghilenhLCD(0x86); 
+  41   1        hienthi_dulieu_rtc(docdulieu(4));
+  42   1        ghi_kytu('-');  
+  43   1        hienthi_dulieu_rtc(docdulieu(5));
+  44   1        ghi_chuoi("-20");               
+  45   1        hienthi_dulieu_rtc(docdulieu(6));
+  46   1        dem_nhiet_do++;
+  47   1          if(dem_nhiet_do > 20) 
+  48   1          {
+  49   2              Read_DHT11();
+  50   2              dem_nhiet_do = 0;
+  51   2          }
+  52   1          
+  53   1          
+  54   1          ghilenhLCD(0xC9); 
+C51 COMPILER V9.60.7.0   MAIN1                                                             06/12/2026 20:07:20 PAGE 2   
+
+  55   1          ghiso(I_Temp);
+  56   1          ghi_kytu(0xDF); 
+  57   1          ghi_kytu('C');
+  58   1        ghiso(I_RH);
+  59   1        ghi_kytu('%');
+  60   1      }
+  61          
+  62          /**********************************************************************************/
+  63          
+  64           /**********************************************************************************/
+  65          
+  66          unsigned char bcd_dec(unsigned char bcd)
+  67          {
+  68   1        return((bcd/16)*10+(bcd%16));   
+  69   1      }
+  70          
+  71          unsigned char dec_bcd(unsigned char dec)
+  72          {
+  73   1        return((dec/10)*16+(dec%10));
+  74   1      }
+  75          //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
+  76          void caidat_rtc()
+  77          {
+  78   1        unsigned char giay,phut,gio,thu,ngay,thang,nam;
+  79   1        
+  80   1        
+  81   1        delay(300); 
+  82   1        
+  83   1        
+  84   1        gio = bcd_dec(docdulieu(2) & 0x3f);
+  85   1        if(gio > 23)
+  86   1        {
+  87   2          delay(20); 
+  88   2          gio = bcd_dec(docdulieu(2) & 0x3f); 
+  89   2          if(gio > 23) gio = 0;
+  90   2        }
+  91   1      
+  92   1      
+  93   1        phut = bcd_dec(docdulieu(1));
+  94   1        if(phut > 59)
+  95   1        {
+  96   2          delay(20);
+  97   2          phut = bcd_dec(docdulieu(1));
+  98   2          if(phut > 59) phut = 0;
+  99   2        }
+ 100   1      
+ 101   1        giay = bcd_dec(docdulieu(0) & 0x7f);
+ 102   1        if(giay > 59)
+ 103   1        {
+ 104   2          delay(20);
+ 105   2          giay = bcd_dec(docdulieu(0) & 0x7f);
+ 106   2          if(giay > 59) giay = 0;
+ 107   2        }
+ 108   1      
+ 109   1      
+ 110   1        ngay = bcd_dec(docdulieu(4));
+ 111   1        if(ngay > 31 || ngay == 0)
+ 112   1        {
+ 113   2          delay(20);
+ 114   2          ngay = bcd_dec(docdulieu(4));
+ 115   2          if(ngay > 31 || ngay == 0) ngay = 1;
+ 116   2        }
+C51 COMPILER V9.60.7.0   MAIN1                                                             06/12/2026 20:07:20 PAGE 3   
+
+ 117   1      
+ 118   1        thang = bcd_dec(docdulieu(5));
+ 119   1        if(thang > 12 || thang == 0)
+ 120   1        {
+ 121   2          delay(20);
+ 122   2          thang = bcd_dec(docdulieu(5));
+ 123   2          if(thang > 12 || thang == 0) thang = 1;
+ 124   2        }
+ 125   1      
+ 126   1      
+ 127   1        nam = bcd_dec(docdulieu(6));
+ 128   1        if(nam > 99)
+ 129   1        {
+ 130   2          delay(20);
+ 131   2          nam = bcd_dec(docdulieu(6));
+ 132   2          if(nam > 99) nam = 24;
+ 133   2        }
+ 134   1        
+ 135   1      
+ 136   1        thu = bcd_dec(docdulieu(3));
+ 137   1        if(thu > 7 || thu == 0) thu = 1;
+ 138   1      
+ 139   1        
+ 140   1      //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
+ 141   1      
+ 142   1        ghilenhLCD(1);
+ 143   1        ghi_chuoi("CHINH");
+ 144   1        ghi_chuoi(" GIO :");
+ 145   1        ghilenhLCD(0x0e);
+ 146   1        ghilenhLCD(0xc4);
+ 147   1        ghiso(gio);
+ 148   1        ghi_kytu(':');
+ 149   1        ghiso(phut);
+ 150   1        ghi_kytu(':');
+ 151   1        ghiso(giay);
+ 152   1        ghilenhLCD(0xC5);
+ 153   1        
+ 154   1        while(menu==0); 
+ 155   1        delay(200);      
+ 156   1        
+ 157   1          caidatgio:while(tang!=0 && giam!=0 && menu!=0);
+ 158   1        if(tang==0)
+ 159   1        {
+ 160   2          gio++;
+ 161   2          if(gio >= 24) gio=0; 
+ 162   2          ghilenhLCD(0xC4);
+ 163   2          ghiso(gio);
+ 164   2          ghilenhLCD(0xC5);
+ 165   2          delay(500);
+ 166   2          goto caidatgio; 
+ 167   2        }
+ 168   1        if(giam==0)
+ 169   1        {
+ 170   2          gio--;
+ 171   2          if(gio == 0xFF) gio=23; 
+ 172   2          ghilenhLCD(0xC4);
+ 173   2          ghiso(gio);
+ 174   2          ghilenhLCD(0xC5);
+ 175   2          delay(500);
+ 176   2          goto caidatgio;
+ 177   2        }
+ 178   1        while(menu==0); 
+C51 COMPILER V9.60.7.0   MAIN1                                                             06/12/2026 20:07:20 PAGE 4   
+
+ 179   1        delay(200);      
+ 180   1        
+ 181   1        ghilenhLCD(0xC8);
+ 182   1          caidatphut: while(tang!=0 && giam!=0 && menu!=0);
+ 183   1          if(tang==0)
+ 184   1          {
+ 185   2          phut++;
+ 186   2          if(phut >= 60) phut=0; 
+ 187   2          ghilenhLCD(0xC7);
+ 188   2          ghiso(phut);
+ 189   2          ghilenhLCD(0x10);
+ 190   2          delay(500);
+ 191   2          goto caidatphut;
+ 192   2        }
+ 193   1        if(giam==0)
+ 194   1        {
+ 195   2          phut--;
+ 196   2          if(phut == 0xFF) phut=59;
+ 197   2          ghilenhLCD(0xC7);
+ 198   2          ghiso(phut);
+ 199   2          ghilenhLCD(0x10);
+ 200   2          delay(500);
+ 201   2          goto caidatphut;
+ 202   2        }
+ 203   1        while(menu==0); 
+ 204   1        delay(200);      
+ 205   1        
+ 206   1        ghilenhLCD(0xCB);
+ 207   1          caidatgiay: while(tang!=0 && giam!=0 && menu!=0);
+ 208   1        if(tang==0)
+ 209   1        {
+ 210   2          giay++;
+ 211   2          if(giay >= 60) giay=0; // 
+ 212   2          ghilenhLCD(0xCA);
+ 213   2          ghiso(giay);
+ 214   2          ghilenhLCD(0xCB);
+ 215   2          delay(500);
+ 216   2          goto caidatgiay; 
+ 217   2        }
+ 218   1        if(giam==0)
+ 219   1        {
+ 220   2          giay--;
+ 221   2          if(giay == 0xFF) giay=59;
+ 222   2          ghilenhLCD(0xCA);
+ 223   2          ghiso(giay);
+ 224   2          ghilenhLCD(0xCB);
+ 225   2          delay(500);
+ 226   2          goto caidatgiay;
+ 227   2        }
+ 228   1      
+ 229   1       //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
+ 230   1        // CAI DAT NGAY - THANG - NAM 
+ 231   1        
+ 232   1        while(menu==0); 
+ 233   1        delay(200);      
+ 234   1        
+ 235   1        ghilenhLCD(1);
+ 236   1        ghi_chuoi("CHINH NGAY :");
+ 237   1        ghilenhLCD(0xc4);
+ 238   1        ghiso(ngay);
+ 239   1        ghi_kytu('-');
+ 240   1        ghiso(thang);
+C51 COMPILER V9.60.7.0   MAIN1                                                             06/12/2026 20:07:20 PAGE 5   
+
+ 241   1        ghi_chuoi("-20");
+ 242   1        ghiso(nam);
+ 243   1        ///////////////////////////////////////////////////
+ 244   1        ghilenhLCD(0xc5);
+ 245   1          caidatngay:while (tang!=0 && giam!=0 && menu!=0);
+ 246   1        if(tang==0)
+ 247   1        {
+ 248   2          ngay++;
+ 249   2          
+ 250   2          if(ngay >= 32)  ngay=1; 
+ 251   2          ghilenhLCD(0xC4);
+ 252   2          ghiso(ngay);
+ 253   2          ghilenhLCD(0x10);
+ 254   2          delay(300);
+ 255   2          goto caidatngay;
+ 256   2        }
+ 257   1      
+ 258   1        if(giam==0)
+ 259   1        {
+ 260   2          ngay--;
+ 261   2          if(ngay == 0) ngay=31;
+ 262   2          ghilenhLCD(0xC4);
+ 263   2          ghiso(ngay);
+ 264   2          ghilenhLCD(0x10);
+ 265   2          delay(300);
+ 266   2          goto caidatngay;
+ 267   2        }
+ 268   1        while(menu==0); 
+ 269   1        delay(200);      
+ 270   1        
+ 271   1        ghilenhLCD(0xC8);
+ 272   1          caidatthang:while(tang!=0 && giam!=0 && menu!=0);
+ 273   1        if(tang==0)
+ 274   1        {
+ 275   2          thang++;
+ 276   2          if(thang >= 13) thang=1; 
+ 277   2          ghilenhLCD(0xC7);
+ 278   2          ghiso(thang);
+ 279   2          ghilenhLCD(0x10);
+ 280   2          delay(300);
+ 281   2          goto caidatthang;
+ 282   2        }
+ 283   1        if(giam==0)
+ 284   1        {
+ 285   2          thang--;
+ 286   2          if(thang == 0) thang=12;
+ 287   2          ghilenhLCD(0xC7);
+ 288   2          ghiso(thang);
+ 289   2          ghilenhLCD(0x10);
+ 290   2          delay(300);
+ 291   2          goto caidatthang;
+ 292   2        }
+ 293   1        while(menu==0); 
+ 294   1        delay(200);      
+ 295   1        
+ 296   1        ghilenhLCD(0xCD);
+ 297   1          caidatnam:while(tang!=0 && giam!=0 && menu!=0);
+ 298   1        if(tang==0)
+ 299   1        {
+ 300   2          nam++;
+ 301   2          if(nam >= 100) nam=0; 
+ 302   2          ghilenhLCD(0xCC);
+C51 COMPILER V9.60.7.0   MAIN1                                                             06/12/2026 20:07:20 PAGE 6   
+
+ 303   2          ghiso(nam);
+ 304   2          ghilenhLCD(0xCD);
+ 305   2          delay(300);
+ 306   2          goto caidatnam;
+ 307   2        }
+ 308   1      
+ 309   1        if(giam==0)
+ 310   1        {
+ 311   2          nam--;
+ 312   2          if(nam == 0xFF) nam=99;
+ 313   2          ghilenhLCD(0xCC);
+ 314   2          ghiso(nam);
+ 315   2          ghilenhLCD(0xCD);
+ 316   2          delay(300);
+ 317   2          goto caidatnam; 
+ 318   2        }
+ 319   1      
+ 320   1      
+ 321   1       //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
+ 322   1          // CAI DAT THU 
+ 323   1        while(menu==0); 
+ 324   1        delay(200);      
+ 325   1        
+ 326   1        ghilenhLCD(1);
+ 327   1        ghi_chuoi("CHINH THU :");
+ 328   1        ghilenhLCD(0xc4);
+ 329   1        ghi_chuoi(day[thu-1]);
+ 330   1          caidatthu:while(tang!=0 && giam!=0 && menu!=0);
+ 331   1        if(tang==0)
+ 332   1        {   
+ 333   2          thu++;
+ 334   2          if(thu >= 8) thu=1; 
+ 335   2          ghilenhLCD(0xC4);
+ 336   2          ghi_chuoi(day[thu-1]);
+ 337   2          delay(300);
+ 338   2          goto caidatthu;
+ 339   2        }
+ 340   1        
+ 341   1        if(giam==0)
+ 342   1        {   
+ 343   2          thu--;
+ 344   2          if(thu == 0) thu=7;
+ 345   2          ghilenhLCD(0xC4);
+ 346   2          ghi_chuoi(day[thu-1]);
+ 347   2          delay(300);
+ 348   2          goto caidatthu;
+ 349   2        }
+ 350   1      
+ 351   1        while(menu==0); 
+ 352   1        delay(200);      
+ 353   1        
+ 354   1        ghilenhLCD(1);      
+ 355   1        ghilenhLCD(0x0C); 
+ 356   1        
+ 357   1        //day tgian vào rtc
+ 358   1        giatrikhoitao_rtc[0] = dec_bcd(giay);
+ 359   1        giatrikhoitao_rtc[1] = dec_bcd(phut);
+ 360   1        giatrikhoitao_rtc[2] = dec_bcd(gio);
+ 361   1        giatrikhoitao_rtc[3] = dec_bcd(thu);
+ 362   1        giatrikhoitao_rtc[4] = dec_bcd(ngay);
+ 363   1        giatrikhoitao_rtc[5] = dec_bcd(thang);
+ 364   1        giatrikhoitao_rtc[6] = dec_bcd(nam);
+C51 COMPILER V9.60.7.0   MAIN1                                                             06/12/2026 20:07:20 PAGE 7   
+
+ 365   1        giatrikhoitao_rtc[7] = 0x00;
+ 366   1        giatrikhoitao_rtc[8] = 'c';  
+ 367   1      
+ 368   1        ghivaoDS1307();
+ 369   1        ghilenhLCD(1);
+ 370   1      }
+ 371          
+ 372          //==================================================================================//
+ 373          void caidat_baothuc(unsigned char add, char* str)
+ 374          {
+ 375   1        //doc bao thuc rtc
+ 376   1        unsigned char gio,phut,ngay,thang,state;
+ 377   1        delay(200);
+ 378   1        gio   = bcd_dec(docdulieu(add));
+ 379   1        phut  = bcd_dec(docdulieu(add+1));
+ 380   1        ngay  = bcd_dec(docdulieu(add+2));
+ 381   1        thang = bcd_dec(docdulieu(add+3));
+ 382   1        state = bcd_dec(docdulieu(add+4)); 
+ 383   1        if(gio > 23) gio = 0;
+ 384   1        if(phut > 59)phut = 0;
+ 385   1        if(ngay > 31) ngay = 0; 
+ 386   1        if(thang > 12) thang = 0; 
+ 387   1          if(state> 1) state = 0; 
+ 388   1        ghilenhLCD(1);
+ 389   1        ghi_chuoi(str);
+ 390   1        ghilenhLCD(0xC0); 
+ 391   1        ghiso(ngay); ghi_kytu('/'); ghiso(thang);
+ 392   1        ghi_kytu(' ');
+ 393   1        ghiso(gio); ghi_kytu(':'); ghiso(phut); ghi_chuoi("D:");
+ 394   1        ghiso(state);
+ 395   1      
+ 396   1          ghilenhLCD(0x0E); 
+ 397   1        ghilenhLCD(0xC7); 
+ 398   1        while(menu==0); 
+ 399   1        delay(200);
+ 400   1        
+ 401   1        caidat_r1_gio: while(tang!=0 && giam!=0 && menu!=0);
+ 402   1        if(tang==0) {
+ 403   2          gio++; if(gio >= 24) gio=0; 
+ 404   2          ghilenhLCD(0xC6); ghiso(gio); ghilenhLCD(0xC7);
+ 405   2          delay(300); goto caidat_r1_gio;
+ 406   2        }
+ 407   1        if(giam==0) {
+ 408   2          gio--; if(gio == 0xFF) gio=23;
+ 409   2          ghilenhLCD(0xC6); ghiso(gio); ghilenhLCD(0xC7);
+ 410   2          delay(300); goto caidat_r1_gio;
+ 411   2        }
+ 412   1      
+ 413   1        
+ 414   1        while(menu==0); 
+ 415   1        delay(200);     
+ 416   1        
+ 417   1        ghilenhLCD(0xCA); 
+ 418   1        caidat_r1_phut: while(tang!=0 && giam!=0 && menu!=0);
+ 419   1        if(tang==0) {
+ 420   2          phut++; if(phut >= 60) phut=0; 
+ 421   2          ghilenhLCD(0xC9); ghiso(phut); ghilenhLCD(0xCA);
+ 422   2          delay(300); goto caidat_r1_phut;
+ 423   2        }
+ 424   1        if(giam==0) {
+ 425   2          phut--; if(phut == 0xFF) phut=59;
+ 426   2          ghilenhLCD(0xC9); ghiso(phut); ghilenhLCD(0xCA);
+C51 COMPILER V9.60.7.0   MAIN1                                                             06/12/2026 20:07:20 PAGE 8   
+
+ 427   2          delay(300); goto caidat_r1_phut;
+ 428   2        }
+ 429   1      
+ 430   1        // CAI DAT NGAY BAO THUC
+ 431   1        while(menu==0); 
+ 432   1        delay(200);     
+ 433   1        
+ 434   1        ghilenhLCD(0xC1); // dia chi thanh ghi ngay
+ 435   1        caidat_r1_ngay: while(tang!=0 && giam!=0 && menu!=0);
+ 436   1        if(tang==0) {
+ 437   2          ngay++; 
+ 438   2          if(ngay >= 32) ngay=0; 
+ 439   2          ghilenhLCD(0xC0); ghiso(ngay); ghilenhLCD(0xC1);
+ 440   2          delay(300); goto caidat_r1_ngay;
+ 441   2        }
+ 442   1        if(giam==0) {
+ 443   2          ngay--; 
+ 444   2          if(ngay == 0xFF) ngay=31;
+ 445   2          ghilenhLCD(0xC0); ghiso(ngay); ghilenhLCD(0xC1);
+ 446   2          delay(300); goto caidat_r1_ngay;
+ 447   2        }
+ 448   1      
+ 449   1        // CAI DAT THANG BAO THUC
+ 450   1        while(menu==0); 
+ 451   1        delay(200);     
+ 452   1        
+ 453   1        ghilenhLCD(0xC4); // dia chi thanh ghi thang
+ 454   1        caidat_r1_thang: while(tang!=0 && giam!=0 && menu!=0);
+ 455   1        if(tang==0) {
+ 456   2          thang++; 
+ 457   2          if(thang >= 13) thang=0; 
+ 458   2          ghilenhLCD(0xC3); ghiso(thang); ghilenhLCD(0xC4);
+ 459   2          delay(300); goto caidat_r1_thang;
+ 460   2        }
+ 461   1        if(giam==0) {
+ 462   2          thang--; 
+ 463   2          if(thang == 0xFF) thang=12;
+ 464   2          ghilenhLCD(0xC3); ghiso(thang); ghilenhLCD(0xC4);
+ 465   2          delay(300); goto caidat_r1_thang;
+ 466   2        }
+ 467   1        while(menu==0); 
+ 468   1        delay(200);     
+ 469   1        
+ 470   1        ghilenhLCD(0xCD); // dia chi thanh ghi trang thai
+ 471   1        caidat_r1_state: while(tang!=0 && giam!=0 && menu!=0);
+ 472   1        if(tang==0) {
+ 473   2          state=!state; 
+ 474   2          ghilenhLCD(0xCD); ghiso(state); ghilenhLCD(0xCE);
+ 475   2          delay(300); goto caidat_r1_state;
+ 476   2        }
+ 477   1        if(giam==0) {
+ 478   2          state=!state; 
+ 479   2          ghilenhLCD(0xCD); ghiso(state); ghilenhLCD(0xCE);
+ 480   2          delay(300); goto caidat_r1_state;
+ 481   2        }
+ 482   1        while(menu==0); 
+ 483   1        delay(200);     
+ 484   1          ghilenhLCD(0x0C); 
+ 485   1        // save bao thuc vao ds1307
+ 486   1        ghi_dulieu_rtc(add, dec_bcd(gio));
+ 487   1        ghi_dulieu_rtc(add+1, dec_bcd(phut));
+ 488   1        ghi_dulieu_rtc(add+2, dec_bcd(ngay));
+C51 COMPILER V9.60.7.0   MAIN1                                                             06/12/2026 20:07:20 PAGE 9   
+
+ 489   1        ghi_dulieu_rtc(add+3, dec_bcd(thang));
+ 490   1        ghi_dulieu_rtc(add+4, dec_bcd(state));
+ 491   1        ghilenhLCD(1); 
+ 492   1      }
+ 493          /**********************************************************************************/
+ 494          void kiemtra_rtc(void)
+ 495          {
+ 496   1        unsigned char temp;
+ 497   1        unsigned char retry = 50; 
+ 498   1        bit flag_ok = 0;
+ 499   1      
+ 500   1        while(retry--)
+ 501   1        {
+ 502   2          start_rtc();
+ 503   2          gui_rtc(0xd0);
+ 504   2          gui_rtc(0x08);
+ 505   2          start_rtc();
+ 506   2          gui_rtc(0xd1);
+ 507   2          temp=nhan_rtc();
+ 508   2          stop_rtc();
+ 509   2          
+ 510   2          if(temp == 'c')   
+ 511   2          {
+ 512   3            flag_ok = 1;
+ 513   3            break; 
+ 514   3          }
+ 515   2          delay(10); 
+ 516   2        }
+ 517   1      
+ 518   1        if(flag_ok == 0)   
+ 519   1        {              
+ 520   2          giatrikhoitao_rtc[0]=0x50;
+ 521   2          giatrikhoitao_rtc[1]=0x59;
+ 522   2          giatrikhoitao_rtc[2]=0x09;
+ 523   2          giatrikhoitao_rtc[3]=0x04;
+ 524   2          giatrikhoitao_rtc[4]=0x04;
+ 525   2          giatrikhoitao_rtc[5]=0x05;
+ 526   2          giatrikhoitao_rtc[6]=0x11;
+ 527   2          giatrikhoitao_rtc[7]=0x00;
+ 528   2          giatrikhoitao_rtc[8]='c';
+ 529   2          ghivaoDS1307();
+ 530   2          
+ 531   2      // gtri mac dinh
+ 532   2          ghi_dulieu_rtc(0x09, dec_bcd(0)); 
+ 533   2          ghi_dulieu_rtc(0x0A, dec_bcd(0)); 
+ 534   2          ghi_dulieu_rtc(0x0B, dec_bcd(0)); 
+ 535   2          ghi_dulieu_rtc(0x0C, dec_bcd(0)); 
+ 536   2          ghi_dulieu_rtc(0x0D, dec_bcd(0)); 
+ 537   2          ghi_dulieu_rtc(0x0E, dec_bcd(0)); 
+ 538   2          ghi_dulieu_rtc(0x0F, dec_bcd(0)); 
+ 539   2          ghi_dulieu_rtc(0x10, dec_bcd(0)); 
+ 540   2          ghi_dulieu_rtc(0x11, dec_bcd(0)); 
+ 541   2              ghi_dulieu_rtc(0x12, dec_bcd(0));
+ 542   2            ghi_dulieu_rtc(0x13, TOn1);
+ 543   2          ghi_dulieu_rtc(0x14, TOff1);
+ 544   2          ghi_dulieu_rtc(0x15, TMax1);
+ 545   2          ghi_dulieu_rtc(0x16, TOn2);
+ 546   2          ghi_dulieu_rtc(0x17, TOff2);
+ 547   2            ghi_dulieu_rtc(0x18, TMax2);
+ 548   2        }
+ 549   1      
+ 550   1          r1_gio   = bcd_dec(docdulieu(0x09)); 
+C51 COMPILER V9.60.7.0   MAIN1                                                             06/12/2026 20:07:20 PAGE 10  
+
+ 551   1          r1_phut  = bcd_dec(docdulieu(0x0A)); 
+ 552   1          r1_ngay  = bcd_dec(docdulieu(0x0B)); 
+ 553   1          r1_thang = bcd_dec(docdulieu(0x0C)); 
+ 554   1          r1_state = bcd_dec(docdulieu(0x0D)); 
+ 555   1      
+ 556   1         
+ 557   1          r2_gio   = bcd_dec(docdulieu(0x0E)); 
+ 558   1          r2_phut  = bcd_dec(docdulieu(0x0F)); 
+ 559   1          r2_ngay  = bcd_dec(docdulieu(0x10)); 
+ 560   1          r2_thang = bcd_dec(docdulieu(0x11)); 
+ 561   1          r2_state = bcd_dec(docdulieu(0x12));
+ 562   1        
+ 563   1        if(r1_gio>23) r1_gio=0;
+ 564   1        if(r1_phut>60) r1_phut=0;
+ 565   1         if(r1_ngay>32) r1_ngay=0;
+ 566   1        if(r1_thang>12) r1_thang=0;
+ 567   1        if(r1_state>1) r1_state=0;
+ 568   1        if(r2_gio>23) r2_gio=0;
+ 569   1        if(r2_phut>60) r2_phut=0;
+ 570   1        if(r2_ngay>32) r2_ngay=0;
+ 571   1        if(r2_thang>12) r2_thang=0;
+ 572   1        if(r2_state>1) r2_state=0;
+ 573   1      }                         
+ 574          void  doccacdulieu(void){   int i;
+ 575   1                                  for(i=0;i<=6;i++){docdulieu(i);}   }
+ 576          
+ 577          //////////////////////////////////////////////////////////////////////////////
+ 578          bit check_r1, check_r2;
+ 579          bit co=0;
+ 580          void caidatco() interrupt 0     //ngat ngoai 0 thi co =1
+ 581          {
+ 582   1        co=1;
+ 583   1      }
+ 584          void autorelay()
+ 585          {
+ 586   1          if(dht_ready == 1)
+ 587   1          {
+ 588   2              // --- LOGIC CHO RELAY 1 (ÐÈN/SU?I) ---
+ 589   2              if(I_Temp > TMax1) 
+ 590   2              {
+ 591   3                  R1 = 1; check_r1 = 0; user = 0;
+ 592   3              }
+ 593   2              else if(user == 0) 
+ 594   2              {
+ 595   3                  if(I_Temp < TOn1) 
+ 596   3                  {
+ 597   4                      if(check_r1 == 0) { R1 = 0; check_r1 = 1; buzzer = 1; delay(100); buzzer = 0; }
+ 598   4                  } 
+ 599   3                  else if(I_Temp > TOff1) 
+ 600   3                  {
+ 601   4                      R1 = 1; check_r1 = 0;
+ 602   4                    
+ 603   4                  }
+ 604   3              }
+ 605   2      
+ 606   2            
+ 607   2              if(I_Temp > TMax2) 
+ 608   2              {
+ 609   3                  R2 = 0; check_r2 = 1; user2 = 0;
+ 610   3              }
+ 611   2              else if(user2 == 0) 
+ 612   2              {
+C51 COMPILER V9.60.7.0   MAIN1                                                             06/12/2026 20:07:20 PAGE 11  
+
+ 613   3                  if(I_Temp > TOn2) 
+ 614   3                  {
+ 615   4                      if(check_r2 == 0) { R2 = 0; check_r2 = 1; buzzer = 1; delay(100); buzzer = 0; }
+ 616   4                  }
+ 617   3                  else if(I_Temp < TOff2) 
+ 618   3                  {
+ 619   4                      R2 = 1; check_r2 = 0;
+ 620   4                  }
+ 621   3              }
+ 622   2          }
+ 623   1      }
+ 624          void setting(unsigned char add)
+ 625          {
+ 626   1        TOn1=docdulieu(add);
+ 627   1        TOff1=docdulieu(add+1);
+ 628   1        TMax1=docdulieu(add+2);
+ 629   1        TOn2=docdulieu(add+3);
+ 630   1        TOff2=docdulieu(add+4);
+ 631   1        TMax2=docdulieu(add+5);
+ 632   1        ghilenhLCD(1);
+ 633   1        ghilenhLCD(0x80);
+ 634   1        ghi_chuoi("DEN:  ");
+ 635   1        ghiso(TOn1);ghi_kytu(':');ghiso(TOff1);ghi_kytu(':');ghiso(TMax1);
+ 636   1        ghilenhLCD(0xC0);
+ 637   1        ghi_chuoi("QUAT: ");
+ 638   1        ghiso(TOn2);ghi_kytu(':');ghiso(TOff2);ghi_kytu(':');ghiso(TMax2);
+ 639   1        while(menu==0);
+ 640   1        delay(200);
+ 641   1        ghilenhLCD(0x0E);
+ 642   1        ghilenhLCD(0x87);
+ 643   1        caidat_Ton1: while(tang!=0&&giam!=0&&menu!=0);
+ 644   1        delay(20);
+ 645   1        if(tang==0)
+ 646   1        {
+ 647   2          TOn1++;
+ 648   2          if(TOn1>100) TOn1=0;
+ 649   2          ghilenhLCD(0x86);ghiso(TOn1);ghilenhLCD(0x87);
+ 650   2              delay(200); goto caidat_Ton1;
+ 651   2        }
+ 652   1        if(giam==0)
+ 653   1        {
+ 654   2          TOn1--;
+ 655   2          if(TOn1<=0) TOn1=100;
+ 656   2          ghilenhLCD(0x86);ghiso(TOn1);ghilenhLCD(0x87);
+ 657   2          delay(200);
+ 658   2          goto caidat_Ton1;
+ 659   2        }
+ 660   1        while(menu==0);
+ 661   1        delay(200);
+ 662   1        ghilenhLCD(0x8A);
+ 663   1        caidat_Toff1: while(tang!=0&&giam!=0&&menu!=0);
+ 664   1        delay(20);
+ 665   1        if(tang==0)
+ 666   1        {
+ 667   2          TOff1++;
+ 668   2          if(TOff1>100) TOff1=0;
+ 669   2          ghilenhLCD(0x89);ghiso(TOff1);ghilenhLCD(0x8A);
+ 670   2              delay(200); goto caidat_Toff1;
+ 671   2        }
+ 672   1        if(giam==0)
+ 673   1        {
+ 674   2          TOff1--;
+C51 COMPILER V9.60.7.0   MAIN1                                                             06/12/2026 20:07:20 PAGE 12  
+
+ 675   2          if(TOff1<=0) TOff1=60;
+ 676   2          ghilenhLCD(0x89);ghiso(TOff1);ghilenhLCD(0x8A);
+ 677   2          delay(200);
+ 678   2          goto caidat_Toff1;
+ 679   2        }
+ 680   1        while(menu==0);
+ 681   1        delay(200);
+ 682   1          ghilenhLCD(0x8D);
+ 683   1        caidat_TMax1: while(tang!=0&&giam!=0&&menu!=0);
+ 684   1        delay(20);
+ 685   1        if(tang==0)
+ 686   1        {
+ 687   2          TMax1++;
+ 688   2          if(TMax1>100) TMax1=0;
+ 689   2          ghilenhLCD(0x8C);ghiso(TMax1);ghilenhLCD(0x8D);
+ 690   2              delay(200); goto caidat_TMax1;
+ 691   2        }
+ 692   1        if(giam==0)
+ 693   1        {
+ 694   2          TMax1--;
+ 695   2          if(TMax1<=0) TMax1=100;
+ 696   2          ghilenhLCD(0x8C);ghiso(TMax1);ghilenhLCD(0x8D);
+ 697   2          
+ 698   2          delay(200); goto caidat_TMax1;
+ 699   2        }
+ 700   1        while(menu==0);
+ 701   1        delay(200);
+ 702   1        ghilenhLCD(0xC7);
+ 703   1        caidat_Ton2: while(tang!=0&&giam!=0&&menu!=0);
+ 704   1        delay(20);
+ 705   1      
+ 706   1        if(tang==0)
+ 707   1        {
+ 708   2          TOn2++;
+ 709   2          if(TOn2>100) TOn2=0;
+ 710   2          ghilenhLCD(0xC6);ghiso(TOn2);ghilenhLCD(0xC7);
+ 711   2              delay(200); goto caidat_Ton2;
+ 712   2        }
+ 713   1        if(giam==0)
+ 714   1        {
+ 715   2          TOn2--;
+ 716   2          if(TOn2<=0) TOn2=100;
+ 717   2          ghilenhLCD(0xC6);ghiso(TOn2);ghilenhLCD(0xC7);
+ 718   2          
+ 719   2          delay(200);goto caidat_Ton2;
+ 720   2        }
+ 721   1        while(menu==0);
+ 722   1        delay(200);
+ 723   1        ghilenhLCD(0xCA);
+ 724   1        caidat_Toff2: while(tang!=0&&giam!=0&&menu!=0);
+ 725   1        delay(20);
+ 726   1      
+ 727   1        if(tang==0)
+ 728   1        {
+ 729   2          TOff2++;
+ 730   2          if(TOff2>100) TOff2=100;
+ 731   2          ghilenhLCD(0xC9);ghiso(TOff2);ghilenhLCD(0xCA);
+ 732   2              delay(200); goto caidat_Toff2;
+ 733   2        }
+ 734   1        if(giam==0)
+ 735   1        {
+ 736   2          TOff2--;
+C51 COMPILER V9.60.7.0   MAIN1                                                             06/12/2026 20:07:20 PAGE 13  
+
+ 737   2          if(TOff2<=0) TOff2=100;
+ 738   2          ghilenhLCD(0xC9);ghiso(TOff2);ghilenhLCD(0xCA);
+ 739   2          delay(200); goto caidat_Toff2;
+ 740   2        }
+ 741   1        while(menu==0);
+ 742   1        delay(200);
+ 743   1        ghilenhLCD(0xCD);
+ 744   1        caidat_TMax2: while(tang!=0&&giam!=0&&menu!=0);
+ 745   1        delay(20);
+ 746   1        if(tang==0)
+ 747   1        {
+ 748   2          TMax2++;
+ 749   2          if(TMax2>100) TMax2=0;
+ 750   2          ghilenhLCD(0xCC);ghiso(TMax2);ghilenhLCD(0xCD);
+ 751   2              delay(200); goto caidat_TMax2;
+ 752   2        }
+ 753   1        if(giam==0)
+ 754   1        {
+ 755   2          TMax2--;
+ 756   2          if(TMax2<=0) TMax2=100;
+ 757   2          ghilenhLCD(0xCC);ghiso(TMax2);ghilenhLCD(0xCD);
+ 758   2          delay(200);goto caidat_TMax2;
+ 759   2        }
+ 760   1        while(menu==0);
+ 761   1        delay(200);
+ 762   1        ghilenhLCD(1);
+ 763   1        ghilenhLCD(0x0C);
+ 764   1          ghi_dulieu_rtc(add,TOn1);
+ 765   1        ghi_dulieu_rtc(add+1,TOff1);
+ 766   1        ghi_dulieu_rtc(add+2,TMax1);
+ 767   1        ghi_dulieu_rtc(add+3,TOn2);
+ 768   1        ghi_dulieu_rtc(add+4,TOff2);
+ 769   1        ghi_dulieu_rtc(add+5,TMax2);
+ 770   1          ghilenhLCD(1);
+ 771   1      }
+ 772          void main()
+ 773          {   
+ 774   1        unsigned char c_giay, c_phut, c_gio, c_ngay, c_thang;
+ 775   1        unsigned char i; 
+ 776   1        delay(200); 
+ 777   1        sda = 1; 
+ 778   1        for(i=0; i<9; i++) 
+ 779   1        {
+ 780   2          scl = 0;
+ 781   2          delay(2); 
+ 782   2          scl = 1;
+ 783   2          delay(2);
+ 784   2        }
+ 785   1        scl = 0;
+ 786   1        
+ 787   1        // Khoi tao coi chip
+ 788   1        buzzer = 0; 
+ 789   1          R1=1;R2=1;
+ 790   1        check_r1=0;check_r2=0;
+ 791   1        khoitaoLCD();
+ 792   1        ghilenhLCD(1);
+ 793   1          ghilenhLCD(0x80);
+ 794   1        ghilenhLCD(0xc0);
+ 795   1        ghi_chuoi("----VOLTAGE----");
+ 796   1        delay(1500);
+ 797   1        ghilenhLCD(1);
+ 798   1        
+C51 COMPILER V9.60.7.0   MAIN1                                                             06/12/2026 20:07:20 PAGE 14  
+
+ 799   1        kiemtra_rtc(); 
+ 800   1        
+ 801   1        IE=0x81;
+ 802   1        doccacdulieu();
+ 803   1        
+ 804   1        while(1)
+ 805   1        {   
+ 806   2          doccacdulieu();
+ 807   2          hienthi_rtc();
+ 808   2          delay(200);
+ 809   2          c_giay = bcd_dec(docdulieu(0) & 0x7f);
+ 810   2          c_phut = bcd_dec(docdulieu(1));
+ 811   2          c_gio  = bcd_dec(docdulieu(2) & 0x3f);
+ 812   2          c_ngay = bcd_dec(docdulieu(4));
+ 813   2          c_thang = bcd_dec(docdulieu(5));
+ 814   2              
+ 815   2          if(c_gio == r1_gio && c_phut == r1_phut)
+ 816   2              {
+ 817   3                  bit baothuc_r1 = 0;
+ 818   3                  
+ 819   3                  if(r1_thang == 0 && r1_ngay == 0) 
+ 820   3                  {
+ 821   4                      baothuc_r1 = 1;
+ 822   4                  }
+ 823   3                  else if(r1_thang == 0) 
+ 824   3                  {
+ 825   4                      if(r1_ngay == c_ngay) baothuc_r1 = 1;
+ 826   4                  }
+ 827   3                  else if(r1_ngay == 0) 
+ 828   3                  {
+ 829   4                      if(c_thang == r1_thang) baothuc_r1 = 1;
+ 830   4                  }
+ 831   3                  else // 
+ 832   3                  {
+ 833   4                      if(c_ngay == r1_ngay && c_thang == r1_thang) baothuc_r1 = 1;
+ 834   4                  }
+ 835   3      
+ 836   3                 
+ 837   3                  if(baothuc_r1 == 1 && c_giay == 0 && r1_state == 1)
+ 838   3                  {
+ 839   4                      ghilenhLCD(0x01);
+ 840   4                      ghilenhLCD(0x80);
+ 841   4                      ghi_chuoi("!!! BAT RELAY 1 !!!");
+ 842   4                      
+ 843   4                      R1 = 0;         
+ 844   4                      check_r1 = 1;    
+ 845   4                      user = 1;        
+ 846   4                      buzzer = 1;
+ 847   4                      delay(100);
+ 848   4                      buzzer =0;
+ 849   4                      delay(1000);     
+ 850   4                  }
+ 851   3              }
+ 852   2              
+ 853   2              // ----------------- CHECK BAO THUC RELAY 2 -----------------
+ 854   2              if(c_gio == r2_gio && c_phut == r2_phut)
+ 855   2              {
+ 856   3                  bit baothuc_r2 = 0;
+ 857   3                  
+ 858   3                  if(r2_thang == 0 && r2_ngay == 0) 
+ 859   3                  {
+ 860   4                      baothuc_r2 = 1;
+C51 COMPILER V9.60.7.0   MAIN1                                                             06/12/2026 20:07:20 PAGE 15  
+
+ 861   4                  }
+ 862   3                  else if(r2_thang == 0) 
+ 863   3                  {
+ 864   4                      if(r2_ngay == c_ngay) baothuc_r2 = 1;
+ 865   4                  }
+ 866   3                  else if(r2_ngay == 0) 
+ 867   3                  {
+ 868   4                      if(c_thang == r2_thang) baothuc_r2 = 1;
+ 869   4                  }
+ 870   3                  else 
+ 871   3                  {
+ 872   4                      if(c_ngay == r2_ngay && c_thang == r2_thang) baothuc_r2 = 1;
+ 873   4                  }
+ 874   3      
+ 875   3                  if(baothuc_r2 == 1 && c_giay == 0 && r2_state == 1)
+ 876   3                  {
+ 877   4                      ghilenhLCD(0x01);
+ 878   4                      ghilenhLCD(0x80);
+ 879   4                      ghi_chuoi("!!! BAT RELAY 2 !!!");
+ 880   4                      
+ 881   4                      R2 = 0;
+ 882   4                      check_r2 = 1;
+ 883   4                      user2 = 1;      
+ 884   4                      buzzer = 1;
+ 885   4                      delay(100);
+ 886   4                      buzzer =0;
+ 887   4                      delay(1000); 
+ 888   4                  }
+ 889   3              }
+ 890   2          if(co==1)  
+ 891   2          { 
+ 892   3            buzzer = 1; delay(100); buzzer = 0;
+ 893   3            caidat_rtc();
+ 894   3            co=0;   
+ 895   3          }
+ 896   2          
+ 897   2          if(tang==0&&giam==0)
+ 898   2          {
+ 899   3            delay(1000); 
+ 900   3            if(tang==0&&giam==0) 
+ 901   3            {
+ 902   4              while(giam==0&giam==0);
+ 903   4              buzzer = 1; delay(100); buzzer = 0;
+ 904   4              caidat_baothuc(0x09,"Cai RELAY 1");
+ 905   4              caidat_baothuc(0x0E,"CAI RELAY 2");
+ 906   4                kiemtra_rtc(); 
+ 907   4              co = 0; 
+ 908   4            }
+ 909   3          }
+ 910   2          if(BTN_SET == 0) 
+ 911   2      {
+ 912   3          delay(20);
+ 913   3          if(BTN_SET == 0)
+ 914   3          {
+ 915   4              buzzer = 1; delay(100); buzzer = 0;
+ 916   4              setting(0x13); 
+ 917   4              co = 0;   
+ 918   4              ghilenhLCD(1);
+ 919   4              while(BTN_SET == 0); 
+ 920   4          }
+ 921   3      }
+ 922   2           if(BTN1==0)
+C51 COMPILER V9.60.7.0   MAIN1                                                             06/12/2026 20:07:20 PAGE 16  
+
+ 923   2          {
+ 924   3            delay(50);
+ 925   3            while(BTN1==0);
+ 926   3            if(check_r1==0)
+ 927   3            {
+ 928   4              R1=0;
+ 929   4              check_r1=1;
+ 930   4              user=0;
+ 931   4              buzzer = 1;
+ 932   4              delay(100);
+ 933   4              buzzer =0;
+ 934   4            }else{
+ 935   4              R1=1;
+ 936   4              check_r1=0;
+ 937   4              if(I_Temp<TOn1)
+ 938   4              {
+ 939   5                user=1;
+ 940   5              }
+ 941   4            }
+ 942   3                     
+ 943   3            
+ 944   3          }
+ 945   2          
+ 946   2           if(BTN2==0)
+ 947   2          {
+ 948   3            delay(50);
+ 949   3            while(BTN2==0);
+ 950   3            if(check_r2==0)
+ 951   3            {
+ 952   4              R2=0;
+ 953   4              check_r2=1;
+ 954   4              user2=0;
+ 955   4              buzzer = 1;
+ 956   4              delay(100);
+ 957   4              buzzer =0;
+ 958   4            }else{
+ 959   4              R2=1;
+ 960   4              check_r2=0;
+ 961   4              if(I_Temp>TOn2)
+ 962   4              {
+ 963   5                user2=1;
+ 964   5              }
+ 965   4            }
+ 966   3                     
+ 967   3            
+ 968   3          }
+ 969   2           autorelay();
+ 970   2           
+ 971   2        }
+ 972   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   3904    ----
+   CONSTANT SIZE    =    139    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     16      30
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =      5       2
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
