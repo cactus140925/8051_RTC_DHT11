@@ -257,14 +257,14 @@ void Read_DHT11() {
         D_Temp = Read_Byte(); 
         CheckSum = Read_Byte();
         
-        // Tính t?ng 4 byte d?u tiên
+     
         tong_byte = I_RH + D_RH + I_Temp + D_Temp;
         
-        // So sánh t?ng v?i CheckSum c?a c?m bi?n
+        
         if (tong_byte == CheckSum) {
-            dht_ready = 1; // Xác nh?n d? li?u chu?n
+            dht_ready = 1; 
         } else {
-            // N?u sai Checksum, gi? nguyên dht_ready cu ho?c x? lý tùy ý
+           
             dht_ready = 0; 
         }
     } else {
@@ -362,7 +362,7 @@ void caidat_rtc()
 		if(ngay > 31 || ngay == 0) ngay = 1;
 	}
 
-	// --- Ð?C THÁNG ---
+	//
 	thang = bcd_dec(docdulieu(5));
 	if(thang > 12 || thang == 0)
 	{
@@ -384,7 +384,7 @@ void caidat_rtc()
 
 	
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
-	// PH?N HI?N TH? VÀ CH?NH GI? (GI? NGUYÊN)
+
 	ghilenhLCD(1);
 	ghi_chuoi("CHINH");
 	ghi_chuoi(" GIO :");
@@ -831,7 +831,7 @@ void autorelay()
 {
     if(dht_ready == 1)
     {
-        // --- LOGIC CHO RELAY 1 (ÐÈN/SU?I) ---
+   
         if(I_Temp > TMax1) // Ngu?ng an toàn t?i thu?ng
         {
             R1 = 1; check_r1 = 0; user = 0;
@@ -849,7 +849,7 @@ void autorelay()
         }
 
       
-        if(I_Temp > TMax2) // Ngu?ng an toàn t?i thu?ng cho Qu?t (Phá khóa n?u nóng quá m?c)
+        if(I_Temp > TMax2) 
         {
             R2 = 0; check_r2 = 1; user2 = 0;
         }
