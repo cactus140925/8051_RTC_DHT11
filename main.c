@@ -214,17 +214,17 @@ void Delay_10us() {
 }
 void delay_request() {
     unsigned int i;
-    for(i=0; i<12000; i++); // VÚng l?p t?o tr? kho?ng 18-20ms khÙng d˘ng Timer
+    for(i=0; i<12000; i++); 
 }
 
 void Request() { 
     DHT11 = 1; 
     _nop_();
     DHT11 = 0; 
-    delay_request(); // D˘ng vÚng l?p for thay vÏ delay(20) d˘ng Timer
+    delay_request();
     DHT11 = 1; 
 }
-// Sau dÛ thay delay(20) trong h‡m Request() b?ng delay_dht_request();
+
 unsigned char Response() {
     unsigned int timeout = 0;
     while (DHT11 == 1) { if (++timeout > 2000) return 0; } timeout = 0; 
@@ -237,7 +237,7 @@ unsigned char Read_Byte() {
     unsigned int timeout;
     for (i = 0; i < 8; i++) {
         timeout = 0;
-        while (DHT11 == 0) { if (++timeout > 2000) return 0; } // Ch? lÍn 1
+        while (DHT11 == 0) { if (++timeout > 2000) return 0; } // Ch? l√™n 1
         Delay_10us(); Delay_10us(); Delay_10us(); // Ch? ~30us
         if (DHT11 == 1) {
             dat |= (1 << (7 - i));
@@ -248,7 +248,7 @@ unsigned char Read_Byte() {
     return dat;
 }
 void Read_DHT11() {
-    unsigned char tong_byte; // Bi?n t?m d? tÌnh t?ng
+    unsigned char tong_byte; // Bi?n t?m d? t√≠nh t?ng
     Request();
     if (Response()) {
         I_RH = Read_Byte(); 
@@ -257,14 +257,14 @@ void Read_DHT11() {
         D_Temp = Read_Byte(); 
         CheckSum = Read_Byte();
         
-        // TÌnh t?ng 4 byte d?u tiÍn
+        // T√≠nh t?ng 4 byte d?u ti√™n
         tong_byte = I_RH + D_RH + I_Temp + D_Temp;
         
-        // So s·nh t?ng v?i CheckSum c?a c?m bi?n
+        // So s√°nh t?ng v?i CheckSum c?a c?m bi?n
         if (tong_byte == CheckSum) {
-            dht_ready = 1; // X·c nh?n d? li?u chu?n
+            dht_ready = 1; // X√°c nh?n d? li?u chu?n
         } else {
-            // N?u sai Checksum, gi? nguyÍn dht_ready cu ho?c x? l˝ t˘y ˝
+            // N?u sai Checksum, gi? nguy√™n dht_ready cu ho?c x? l√Ω t√πy √Ω
             dht_ready = 0; 
         }
     } else {
@@ -293,16 +293,16 @@ void hienthi_rtc(void)
 	ghi_chuoi("-20");               
 	hienthi_dulieu_rtc(docdulieu(6));
 	dem_nhiet_do++;
-    if(dem_nhiet_do > 20) // 20 l?n x 100ms ngh? ? main = 2 gi‚y
+    if(dem_nhiet_do > 20) // 20 l?n x 100ms ngh? ? main = 2 gi√¢y
     {
         Read_DHT11();
         dem_nhiet_do = 0;
     }
     
-    // Hi?n th? nhi?t d? t?i cu?i dÚng 1
+    // Hi?n th? nhi?t d? t?i cu?i d√≤ng 1
     ghilenhLCD(0xC9); 
     ghiso(I_Temp);
-    ghi_kytu(0xDF); // K˝ t? d? (∞)
+    ghi_kytu(0xDF); // K√Ω t? d? (¬∞)
     ghi_kytu('C');
 	ghiso(I_RH);
 	ghi_kytu('%');
@@ -326,21 +326,18 @@ void caidat_rtc()
 {
 	unsigned char giay,phut,gio,thu,ngay,thang,nam;
 	
-	// 1. Tang delay d? ch? nhi?u n˙t nh?n/cÚi l?ng xu?ng
 	delay(300); 
 	
-	// 2. –?c v‡ Ki?m tra l?i (Double Check) d? ch?ng v? 0
-	
-	// --- –?C GI? ---
+
 	gio = bcd_dec(docdulieu(2) & 0x3f);
 	if(gio > 23) // N?u d?c sai
 	{
 		delay(20); // Ch? I2C h?i ph?c
-		gio = bcd_dec(docdulieu(2) & 0x3f); // –?c l?i l?n 2
+		gio = bcd_dec(docdulieu(2) & 0x3f); // √ê?c l?i l?n 2
 		if(gio > 23) gio = 0; // N?u v?n sai m?i cho v? 0
 	}
 
-	// --- –?C PH⁄T ---
+
 	phut = bcd_dec(docdulieu(1));
 	if(phut > 59)
 	{
@@ -349,7 +346,6 @@ void caidat_rtc()
 		if(phut > 59) phut = 0;
 	}
 
-	// --- –?C GI¬Y ---
 	giay = bcd_dec(docdulieu(0) & 0x7f);
 	if(giay > 59)
 	{
@@ -358,7 +354,6 @@ void caidat_rtc()
 		if(giay > 59) giay = 0;
 	}
 
-	// --- –?C NG¿Y ---
 	ngay = bcd_dec(docdulieu(4));
 	if(ngay > 31 || ngay == 0)
 	{
@@ -367,7 +362,7 @@ void caidat_rtc()
 		if(ngay > 31 || ngay == 0) ngay = 1;
 	}
 
-	// --- –?C TH¡NG ---
+	// --- √ê?C TH√ÅNG ---
 	thang = bcd_dec(docdulieu(5));
 	if(thang > 12 || thang == 0)
 	{
@@ -376,7 +371,6 @@ void caidat_rtc()
 		if(thang > 12 || thang == 0) thang = 1;
 	}
 
-	// --- –?C NAM ---
 	nam = bcd_dec(docdulieu(6));
 	if(nam > 99)
 	{
@@ -384,14 +378,13 @@ void caidat_rtc()
 		nam = bcd_dec(docdulieu(6));
 		if(nam > 99) nam = 24;
 	}
-	
-	// --- –?C TH? ---
+
 	thu = bcd_dec(docdulieu(3));
 	if(thu > 7 || thu == 0) thu = 1;
 
 	
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
-	// PH?N HI?N TH? V¿ CH?NH GI? (GI? NGUY N)
+	// PH?N HI?N TH? V√Ä CH?NH GI? (GI? NGUY√äN)
 	ghilenhLCD(1);
 	ghi_chuoi("CHINH");
 	ghi_chuoi(" GIO :");
@@ -480,7 +473,7 @@ void caidat_rtc()
 	}
 
  //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
-	// CAI DAT NGAY - THANG - NAM (GI? NGUY N)
+	// CAI DAT NGAY - THANG - NAM 
 	
 	while(menu==0); 
 	delay(200);      
@@ -572,7 +565,7 @@ void caidat_rtc()
 
 
  //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
-    // CAI DAT THU (GI? NGUY N)
+    // CAI DAT THU 
 	while(menu==0); 
 	delay(200);      
 	
@@ -607,7 +600,7 @@ void caidat_rtc()
 	ghilenhLCD(1);      
 	ghilenhLCD(0x0C); 
 	
-	//day tgian v‡o rtc
+	//day tgian v√†o rtc
 	giatrikhoitao_rtc[0] = dec_bcd(giay);
 	giatrikhoitao_rtc[1] = dec_bcd(phut);
 	giatrikhoitao_rtc[2] = dec_bcd(gio);
@@ -799,14 +792,14 @@ void kiemtra_rtc(void)
 		ghi_dulieu_rtc(0x17, TOff2);
 	    ghi_dulieu_rtc(0x18, TMax2);
 	}
-	// –?c Relay 1 (0x09 -> 0x0D)
+	//  Relay 1 (0x09 -> 0x0D)
     r1_gio   = bcd_dec(docdulieu(0x09)); 
     r1_phut  = bcd_dec(docdulieu(0x0A)); 
     r1_ngay  = bcd_dec(docdulieu(0x0B)); 
     r1_thang = bcd_dec(docdulieu(0x0C)); 
     r1_state = bcd_dec(docdulieu(0x0D)); 
 
-    // –?c Relay 2 (0x0E -> 0x12)
+    // Relay 2 (0x0E -> 0x12)
     r2_gio   = bcd_dec(docdulieu(0x0E)); 
     r2_phut  = bcd_dec(docdulieu(0x0F)); 
     r2_ngay  = bcd_dec(docdulieu(0x10)); 
@@ -838,12 +831,12 @@ void autorelay()
 {
     if(dht_ready == 1)
     {
-        // --- LOGIC CHO RELAY 1 (–»N/SU?I) ---
-        if(I_Temp > TMax1) // Ngu?ng an to‡n t?i thu?ng
+        // --- LOGIC CHO RELAY 1 (√ê√àN/SU?I) ---
+        if(I_Temp > TMax1) // Ngu?ng an to√†n t?i thu?ng
         {
             R1 = 1; check_r1 = 0; user = 0;
         }
-        else if(user == 0) // Ch? ch?y t? d?ng khi KH‘NG cu?ng ch?
+        else if(user == 0) // Ch? ch?y t? d?ng khi KH√îNG cu?ng ch?
         {
             if(I_Temp < TOn1) 
             {
@@ -856,7 +849,7 @@ void autorelay()
         }
 
       
-        if(I_Temp > TMax2) // Ngu?ng an to‡n t?i thu?ng cho Qu?t (Ph· khÛa n?u nÛng qu· m?c)
+        if(I_Temp > TMax2) // Ngu?ng an to√†n t?i thu?ng cho Qu?t (Ph√° kh√≥a n?u n√≥ng qu√° m?c)
         {
             R2 = 0; check_r2 = 1; user2 = 0;
         }
@@ -1152,10 +1145,10 @@ void main()
     if(BTN_SET == 0)
     {
         buzzer = 1; delay(100); buzzer = 0;
-        setting(0x13); // V‡o th?ng h‡m c‡i d?t nhi?t d?
-        co = 0;    // XÛa c? ng?t d? khÙng nh?y v‡o ch?nh gi?
+        setting(0x13); 
+        co = 0;    
         ghilenhLCD(1);
-        while(BTN_SET == 0); // Ch? nh? n˙t m?i ch?y ti?p
+        while(BTN_SET == 0); 
     }
 }
 		 if(BTN1==0)
